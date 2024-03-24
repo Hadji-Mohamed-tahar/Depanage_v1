@@ -8,23 +8,23 @@ import {
   StatusBar,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import CardHistory from "../../../components/CardHistory";
+import CardHistory from "../../../components/trucker/CardHistory";
 
-const RideHistory = ({ navigation }) => {
+const History = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={[styles.header, { marginTop: 30 }]}>
-        <Text style={styles.headerText}>Ride history</Text>
+        <Text style={styles.headerText}>My Course</Text>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => {
-            navigation.navigate("HomeClient");
+            navigation.navigate("Trucker_vision");
           }}
         >
           <Feather name="arrow-right-circle" size={30} color="black" />
         </TouchableOpacity>
       </View>
-      <CardHistory />
+      <CardHistory/>
     </View>
   );
 };
@@ -93,4 +93,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default RideHistory;
+export default History;

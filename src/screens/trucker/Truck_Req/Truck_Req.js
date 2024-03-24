@@ -6,7 +6,12 @@ import React, {
   useEffect,
 } from "react";
 import {
-  View, Text, StyleSheet, Image, TextInput , TouchableOpacity
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TextInput,
+  TouchableOpacity,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import MapView, { Marker } from "react-native-maps";
@@ -17,10 +22,11 @@ import {
   Feather,
   FontAwesome5,
   FontAwesome,
+  AntDesign,
 } from "@expo/vector-icons";
 
-const Truck_Search = () => {
-  const StartPoint = useMemo(() => ["38%", "50%", "80%"], []);
+const Truck_Req = () => {
+  const StartPoint = useMemo(() => ["42%"], []);
   const navigation = useNavigation();
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
@@ -59,7 +65,8 @@ const Truck_Search = () => {
   } else if (location) {
     text = `Latitude: ${Latitude}, Longitude: ${Longitude}`;
   }
-  // renders
+
+
   return (
     <View style={styles.container}>
       <MapView style={{ flex: 1 }} initialRegion={initialRegion}>
@@ -77,73 +84,68 @@ const Truck_Search = () => {
         handleIndicatorStyle={{ backgroundColor: "orange" }}
       >
         <BottomSheetView style={styles.contentContainer}>
+          {/* Show Header */}
           <View
-            style={styles.shadowProp}
-            className="w-80 mx-auto h-20 flex-column bg-white rounded-xl px-3"
+            style={styles.lines}
+            className="flex-row items-center space-x-60 pb-2"
           >
-            <View
-              style={{ borderBottomColor: "gray", width: "100%" }}
-              className=" border-b-2 mx-auto h-10 flex-row items-center space-x-2"
-            >
-              <MaterialIcons name="my-location" size={24} color="orange" />
-              <TextInput
-                placeholder="My Location"
-                value="Msila , Magra , Ouled Mansor"
-              />
+            <Image
+              source={require("../../../../assets/imageApp/truck.png")}
+              className="w-14 h-14"
+            />
+            <AntDesign name="questioncircleo" size={24} color="black" />
+          </View>
+          {/* Show client information */}
+          <View className="flex-row items-center justify-between space-x-4 m-2">
+            <View>
+              <FontAwesome name="user-circle" size={44} color="gray" />
             </View>
-            <View className=" w-80 mx-auto h-10 flex-row items-center space-x-3">
-              <FontAwesome5 name="location-arrow" size={20} color="orange" />
-              <TextInput placeholder="Destination" />
+            <View className="flex-column mr-10">
+              <Text className="font-bold">Tahir Hadji Mohammed </Text>
+              <View className="flex-row space-x-2 m-1 items-center">
+                <FontAwesome name="star" size={18} color="gold" />
+                <Text className="text-yellow-400">4.8</Text>
+                <View className="bg-gray-200 rounded-md p-1 w-16">
+                  <Text className="text-gray-800">Especes</Text>
+                </View>
+              </View>
+            </View>
+            <View>
+              <Text className="text-blue-400">2.67KM</Text>
             </View>
           </View>
           {/* show on map */}
-          <View style={{ marginLeft: -180 }}>
-            <TouchableOpacity className="flex-row space-x-3 mt-4 items-center">
+          <View style={{ marginLeft: -130 }}>
+            <TouchableOpacity className="flex-row space-x-3 mt-2 items-center">
               <FontAwesome name="map-pin" size={24} color="orange" />
-              <Text>Show on Map</Text>
+              <Text className="font-bold">Ben Aknoun , Alger , Alger</Text>
             </TouchableOpacity>
           </View>
-          {/* History Location  */}
-          <Text
-            style={{ marginLeft: -180 }}
-            className="text-gray-500 mt-6 mb-2 text-lg"
-          >
-            Recent Research
-          </Text>
-          <View style={{ marginLeft: -20 }}>
-            <View className="flex-row mx-12 space-x-4 items-center ">
-              <FontAwesome name="map-marker" size={24} color="orange" />
-              <View
-                style={{ borderBottomColor: "gray", borderBottomWidth: 1 }}
-                className="flex-column w-64 mb-2 pb-2"
-              >
-                <Text className="text-gray-900 font-bold text-lg">
-                  Rayen's Home
-                </Text>
-                <Text className="text-gray-500 text-xs ">
-                  South Gate , California
-                </Text>
-              </View>
-            </View>
-            <View className="flex-row mx-12 mt-2 mb-4 space-x-4 items-center ">
-              <FontAwesome name="map-marker" size={24} color="orange" />
-              <View
-                style={{ borderBottomColor: "gray", borderBottomWidth: 1 }}
-                className="flex-column w-64 mb-2 pb-2"
-              >
-                <Text className="text-gray-900 font-bold text-lg">
-                  Matheus's Home
-                </Text>
-                <Text className="text-gray-500 text-xs ">
-                  Campton , California
-                </Text>
-              </View>
-            </View>
+          {/* Options for Trucker */}
+          <View className="flex-row mx-auto items-center space-x-2 my-4">
+            <TouchableOpacity
+              style={{ width: 160 }}
+              className="flex-row h-12 items-center space-x-2 justify-center rounded-md bg-blue-500 p-2"
+            >
+              <FontAwesome5 name="location-arrow" size={24} color="white" />
+              <Text className="font-bold text-white">Use GPS</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{ width: 160 }}
+              className="flex-row w-28 h-12 space-x-2 items-center justify-center rounded-md bg-green-500 p-2"
+            >
+              <FontAwesome name="phone" size={24} color="white" />
+              <Text className="font-bold text-white">Call</Text>
+            </TouchableOpacity>
           </View>
+          {/* Repport Your  Clinet */}
           <View className="w-full mx-14 items-center">
-            <TouchableOpacity className="w-full h-12 rounded-xl bg-orange-800 py-2 px-4" onPress={()=>navigation.navigate("SearchingDriver")}>
+            <TouchableOpacity
+              className="w-full h-12 rounded-xl bg-black py-2 px-4"
+              onPress={() => navigation.navigate("Start_Truck")}
+            >
               <Text className="text-center font-bold text-white text-lg">
-                Done
+                Repport Your Clinet
               </Text>
             </TouchableOpacity>
           </View>
@@ -164,7 +166,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     alignItems: "center",
-    paddingTop: 24,
+    paddingTop: 5,
     paddingHorizontal: 12,
   },
   shadowProp: {
@@ -174,6 +176,10 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 5,
   },
+  lines: {
+    borderBottomColor: "gray",
+    borderBottomWidth: 1,
+  },
 });
 
-export default Truck_Search;
+export default Truck_Req;

@@ -4,7 +4,13 @@ import React from "react";
 const CardHistory = () => {
   return (
     <View style={[styles.card]}>
-      <Text style={styles.date}>March 8, 2023</Text>
+      <View style={styles.head}>
+        <View>
+        <Text style={styles.date}>March 8, 2023</Text>
+        <Text >Xqsjdvcvq</Text>
+        </View>
+      <Text style={styles.date}>210 DA</Text>
+      </View>
       <View style={styles.line} />
       <View style={styles.row}>
         <Text style={styles.time}>10:00 AM</Text>
@@ -44,6 +50,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginTop: 10,
+  },
+  head:{
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent:"space-between"
   },
   time: {
     fontSize: 16,

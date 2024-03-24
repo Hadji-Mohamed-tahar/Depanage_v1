@@ -2,8 +2,9 @@ import React from "react";
 import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import CardReceipt from "../../../components/CardReceipt";
+import CardReceiptTrucker from "../../../components/trucker/CardReceiptTrucker";
 
-const Receipt = ({navigation}) => {
+const ReceiptTrucker = ({navigation}) => {
   return (
     <View style={styles.container}>
       <View style={[styles.topBar, styles.iconContainer]}>
@@ -14,7 +15,8 @@ const Receipt = ({navigation}) => {
           style={{ marginTop: 10 }}
         />
       </View>
-      <CardReceipt navigation={navigation}/>
+      {/* <CardReceipt navigation={navigation}/> */}
+      <CardReceiptTrucker navigation={navigation}/>
     </View>
   );
 };
@@ -39,4 +41,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Receipt;
+export default ReceiptTrucker;
