@@ -65,7 +65,7 @@ const Login = ({ navigation }) => {
         </View>
       </View>
       {/* Phone  */}
-      <View className="mx-auto">{click ? <Phone /> : <Email navigation={navigation} />}</View>
+      <View className="mx-auto">{click ? <Phone /> : <Email navigation={navigation} role="customer"/>}</View>
       {/* Or  */}
       <View className="flex-row w-full space-x-3 items-center justify-center mt-10">
         <View style={{ width: 130 }} className="border-b">
@@ -92,7 +92,7 @@ const Login = ({ navigation }) => {
       {/* Not registre yet */}
       <View className="mx-14 mt-4 flex-row space-x-2">
         <Text className="text-gray-400">Not Registered yet?</Text>
-        <TouchableOpacity onPress={() => navigation.navigate("Home_S")}>
+        <TouchableOpacity onPress={() => navigation.navigate("SignUpClient")}>
           <Text
             className="text-orange-500"
           >

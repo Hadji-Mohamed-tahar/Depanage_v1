@@ -7,7 +7,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Phone from "../../../components/auth/Phone";
 import Email from "../../../components/auth/Email";
 
-const Login = ({ navigation }) => {
+const Login2 = ({ navigation }) => {
   const [click, setClick] = useState(false);
   const [backColor, setBackColor] = useState("");
   const [backColorN, setBackColorN] = useState("bg-white");
@@ -25,7 +25,7 @@ const Login = ({ navigation }) => {
   return (
     <View className="flex-1 items-start justify-start w-full h-screen bg-white pt-14 mt-14">
       <Text style={{ fontSize: 20 }} className="text-black font-bold pl-9 mb-1">
-        Login Account
+        Login Account Trucker
       </Text>
       <Text style={{ fontSize: 15 }} className="text-gray-400 font-bold pl-9">
         Hello, welcome back to our account
@@ -65,7 +65,7 @@ const Login = ({ navigation }) => {
         </View>
       </View>
       {/* Phone  */}
-      <View className="mx-auto">{click ? <Phone /> : <Email navigation={navigation} />}</View>
+      <View className="mx-auto">{click ? <Phone /> : <Email navigation={navigation} role="driver"/>}</View>
       {/* Or  */}
       <View className="flex-row w-full space-x-3 items-center justify-center mt-10">
         <View style={{ width: 130 }} className="border-b">
@@ -92,7 +92,7 @@ const Login = ({ navigation }) => {
       {/* Not registre yet */}
       <View className="mx-14 mt-4 flex-row space-x-2">
         <Text className="text-gray-400">Not Registered yet?</Text>
-        <TouchableOpacity onPress={() => navigation.navigate("Home_S")}>
+        <TouchableOpacity onPress={() => navigation.navigate("SignUpTrucker2")}>
           <Text
             className="text-orange-500"
           >
@@ -104,4 +104,4 @@ const Login = ({ navigation }) => {
   );
 };
 
-export default Login;
+export default Login2;

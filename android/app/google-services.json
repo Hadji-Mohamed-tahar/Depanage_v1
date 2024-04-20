@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "736220467333",
+    "project_id": "mystic-treat-417212",
+    "storage_bucket": "mystic-treat-417212.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:736220467333:android:b13cd942e9cd59fcc419ec",
+        "android_client_info": {
+          "package_name": "com.anonymous.appfirebase"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAy408tRj0p_qd61L2FMFszbd3tTcYMWJk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:736220467333:android:053e17e2556f7bbcc419ec",
+        "android_client_info": {
+          "package_name": "com.mohamed9999.appOfficiel"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAy408tRj0p_qd61L2FMFszbd3tTcYMWJk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
