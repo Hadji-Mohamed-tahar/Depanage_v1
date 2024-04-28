@@ -1,3 +1,4 @@
+
 import React, {
   useCallback,
   useMemo,
@@ -13,7 +14,7 @@ import {
   TextInput,
   TouchableOpacity,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import MapView, { Marker } from "react-native-maps";
 import * as Location from "expo-location";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
@@ -24,6 +25,8 @@ import {
   FontAwesome,
   AntDesign,
 } from "@expo/vector-icons";
+import * as Notifications from "expo-notifications";
+import axios from "axios";
 
 const Truck_Req = () => {
   const StartPoint = useMemo(() => ["42%"], []);
@@ -32,6 +35,42 @@ const Truck_Req = () => {
   const [errorMsg, setErrorMsg] = useState(null);
   const [Latitude, setLatitude] = useState(null);
   const [Longitude, setLongitude] = useState(null);
+
+  const route = useRoute();
+  // استرداد البيانات من الصفحة السابقة
+  const {
+    DriverId,
+    tripId,
+    username,
+    totalDistance,
+    currentLocation,
+    destinationLocation,
+    user_id,
+  } = route.params;
+
+  const sendNotification = async () => {
+    // استرداد الرمز المميز expoPushToken للمستخدم
+    const response = await axios.get(
+      `http://192.168.244.231:3000/api/user/${user_id}`
+    );
+    const expoPushToken = response.data;
+    const message = {
+      to: expoPushToken,
+      sound: "default",
+      title: "Driver has arrived",
+      body: "Your driver has arrived at your location.",
+      data: {
+        notificationType: "driverArrived",
+      },
+    };
+
+    try {
+      await axios.post("https://exp.host/--/api/v2/push/send", message);
+      // console.log("Notification sent successfully");
+    } catch (error) {
+      console.error("Error sending notification:", error);
+    }
+  };
 
   useEffect(() => {
     (async () => {
@@ -49,6 +88,25 @@ const Truck_Req = () => {
       } catch (error) {
         setErrorMsg("Error fetching location");
       }
+
+      // تسجيل متلقي الإشعارات
+      Notifications.addNotificationReceivedListener((notification) => {
+        if (
+          notification.request.content.data.notificationType ===
+          "rideConfirmation"
+        ) {
+          // console.log("truck_Req============");
+          navigation.navigate("Start_Truck", {
+            tripId: tripId,
+            DriverId: DriverId,
+            username: username,
+            user_id: user_id,
+            currentLocation: currentLocation,
+            destinationLocation: destinationLocation,
+            totalDistance: totalDistance,
+          });
+        }
+      });
     })();
   }, []);
 
@@ -65,7 +123,6 @@ const Truck_Req = () => {
   } else if (location) {
     text = `Latitude: ${Latitude}, Longitude: ${Longitude}`;
   }
-
 
   return (
     <View style={styles.container}>
@@ -101,24 +158,24 @@ const Truck_Req = () => {
               <FontAwesome name="user-circle" size={44} color="gray" />
             </View>
             <View className="flex-column mr-10">
-              <Text className="font-bold">Tahir Hadji Mohammed </Text>
+              <Text className="font-bold">{username}</Text>
               <View className="flex-row space-x-2 m-1 items-center">
                 <FontAwesome name="star" size={18} color="gold" />
                 <Text className="text-yellow-400">4.8</Text>
                 <View className="bg-gray-200 rounded-md p-1 w-16">
-                  <Text className="text-gray-800">Especes</Text>
+                  <Text className="text-gray-800">Espece</Text>
                 </View>
               </View>
             </View>
             <View>
-              <Text className="text-blue-400">2.67KM</Text>
+              <Text className="text-blue-400">{totalDistance} km</Text>
             </View>
           </View>
           {/* show on map */}
           <View style={{ marginLeft: -130 }}>
             <TouchableOpacity className="flex-row space-x-3 mt-2 items-center">
               <FontAwesome name="map-pin" size={24} color="orange" />
-              <Text className="font-bold">Ben Aknoun , Alger , Alger</Text>
+              <Text className="font-bold">{currentLocation.city_name}</Text>
             </TouchableOpacity>
           </View>
           {/* Options for Trucker */}
@@ -139,16 +196,14 @@ const Truck_Req = () => {
             </TouchableOpacity>
           </View>
           {/* Repport Your  Clinet */}
-          <View className="w-full mx-14 items-center">
-            <TouchableOpacity
-              className="w-full h-12 rounded-xl bg-black py-2 px-4"
-              onPress={() => navigation.navigate("Start_Truck")}
-            >
-              <Text className="text-center font-bold text-white text-lg">
-                Repport Your Clinet
-              </Text>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity
+            className="w-full h-12 rounded-xl bg-black py-2 px-4"
+            onPress={sendNotification}
+          >
+            <Text className="text-center font-bold text-white text-lg">
+              Repport Your Clinet
+            </Text>
+          </TouchableOpacity>
         </BottomSheetView>
       </BottomSheet>
     </View>

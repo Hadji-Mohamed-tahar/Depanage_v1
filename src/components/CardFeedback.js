@@ -1,8 +1,42 @@
-import React from "react";
+
+import React, { useState } from "react";
 import { View, Text, Image, TextInput, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import axios from "axios";
+import { useSelector } from "react-redux";
 
-const CardFeedback = ({navigation}) => {
+const CardFeedback = ({ navigation, driverSelected,tripId }) => {
+  const [rating, setRating] = useState(0);
+  const [feedback, setFeedback] = useState("");
+  const user_id = useSelector((state) => state.user_id);
+
+  const handleRating = (stars) => {
+    setRating(stars);
+  };
+
+  const submitFeedback = () => {
+    if (!rating || !feedback) {
+      alert("Please provide both rating and feedback.");
+      return;
+    }
+    axios.post("http://192.168.244.231:3000/driver_ratings", {
+      driver_id: driverSelected.id,
+      rating: rating,
+      feedback: feedback,
+      rated_by: user_id, 
+      trip_id: tripId, 
+    })
+      .then((response) => {
+        console.log(response.data);
+        // Handle success or show a success message
+        navigation.navigate("HomeClient");
+      })
+      .catch((error) => {
+        console.error(error);
+        // Handle errors or show an error message
+      });
+  };
+
   return (
     <View style={styles.cardContainer}>
       <View style={styles.userContainer}>
@@ -10,18 +44,22 @@ const CardFeedback = ({navigation}) => {
           style={styles.userImage}
           source={require('../../assets/imageApp/user.jpg')}
         />
-        <Text style={styles.userName}>Adel Bedrani</Text>
+        <Text style={styles.userName}>{driverSelected.name}</Text>
       </View>
       
       <View style={styles.ratingContainer}>
         <View style={styles.starIcons}>
-          <Ionicons name="star" size={24} color="gold" />
-          <Ionicons name="star" size={24} color="gold" />
-          <Ionicons name="star" size={24} color="gold" />
-          <Ionicons name="star" size={24} color="gold" />
-          <Ionicons name="star" size={24} color="gold" />
+          {[1, 2, 3, 4, 5].map((star) => (
+            <TouchableOpacity key={star} onPress={() => handleRating(star)}>
+              <Ionicons
+                name={star <= rating ? "star" : "star-outline"}
+                size={24}
+                color={star <= rating ? "gold" : "gray"}
+              />
+            </TouchableOpacity>
+          ))}
         </View>
-        <Text>Great experience!</Text>
+        <Text> Great !</Text>
       </View>
       
       <View style={styles.commentContainer}>
@@ -29,13 +67,13 @@ const CardFeedback = ({navigation}) => {
           style={styles.commentInput}
           placeholder="Add your comment"
           multiline={true}
+          value={feedback}
+          onChangeText={(text) => setFeedback(text)}
         />
       </View>
       
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.okButton}
-         onPress={()=>{navigation.navigate("HomeClient")}}
-        >
+        <TouchableOpacity style={styles.okButton} onPress={submitFeedback}>
           <Text style={styles.okButtonText}>Rate</Text>
         </TouchableOpacity>
       </View>

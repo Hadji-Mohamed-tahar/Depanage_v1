@@ -1,27 +1,53 @@
+
+
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import axios from "axios";
 
-const CardArrived = ({navigation}) => {
+const CardArrived = ({ navigation, driverSelected }) => {
+  const sendNotificationToDriver = async () => {
+    const driverExpoPushToken =driverSelected.expo_push_token; 
+
+    const notificationData = {
+      to: driverExpoPushToken,
+      sound: 'default',
+      title: 'تأكيد ركوب الزبون',
+      body: 'الزبون قد ركب في سيارتك.',
+      data: {
+        notificationType: 'rideConfirmation', 
+      },
+    };
+
+    try {
+      const response = await axios.post('https://exp.host/--/api/v2/push/send', notificationData);
+      // console.log('تم إرسال الإشعار بنجاح:', response.data);
+      navigation.navigate('OnTrip',{driverSelected:driverSelected})
+    } catch (error) {
+      console.error('حدث خطأ أثناء إرسال الإشعار:', error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.firstRow}>
         <View style={styles.textContainer}>
-          <Text style={styles.textContainer1}>HF784C</Text>
-          <Text style={styles.textContainer2}>BMW 5 Series Sedan</Text>
+          {/* <Text style={styles.textContainer1}>HF784C</Text> */}
+          <Text style={styles.textContainer2}>{driverSelected.make}</Text>
         </View>
         <View style={styles.imageContainer}>
           <Image style={styles.image} source={require("../../assets/imageApp/car.png")} />
-          <Text>BMW</Text>
+          <Text>{driverSelected.model}</Text>
         </View>
       </View>
       <View style={styles.secondRow}>
-        <TouchableOpacity style={styles.button}>
+        {/* استدعاء الدالة sendNotificationToDriver عند الضغط على الزر "Ried" */}
+        <TouchableOpacity style={styles.button} onPress={sendNotificationToDriver}>
           <Text style={styles.buttonText}>Ried</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.circularButton}
-        onPress={()=>{navigation.navigate("Receipt")}}
-        >
+        //  onPress={() => { navigation.navigate("Receipt") }}
+         >
           <Ionicons name="close" size={24} color="black" />
         </TouchableOpacity>
       </View>

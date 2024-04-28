@@ -2,7 +2,7 @@
   "expo": {
     "name": "appOfficiel",
     "slug": "appOfficiel",
-    "version": "1.0.0",
+    "version": "3.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -16,7 +16,10 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.mohamed9999.appOfficiel"
+      "bundleIdentifier": "com.mohamed9999.appOfficiel",
+      "runtimeVersion": {
+        "policy": "appVersion"
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -24,7 +27,8 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.mohamed9999.appOfficiel",
-      "googleServiceFile": "./android/app/google-services.json"
+      "googleServiceFile": "./android/app/google-services.json",
+      "runtimeVersion": "1.0.0"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -33,6 +37,10 @@
       "eas": {
         "projectId": "66e6f65b-4f63-4ebf-a286-f6f7fd3f4684"
       }
-    }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/66e6f65b-4f63-4ebf-a286-f6f7fd3f4684"
+    },
+    "useNextNotificationsApi": true
   }
 }

@@ -73,6 +73,7 @@ const Email = ({ navigation ,role}) => {
 
   const handleLogin = async () => {
     try {
+      console.log(expoPushToken);
       const response = await axios.post("http://192.168.244.231:3000/login", {
         email: email,
         password: password,
@@ -149,7 +150,7 @@ const Email = ({ navigation ,role}) => {
           </View>
           <View className="pb-2">
             <TextInput
-              placeholder="Email"
+              placeholder="yyyyyyyy"
               onChangeText={setEmail}
               value={email}
             />

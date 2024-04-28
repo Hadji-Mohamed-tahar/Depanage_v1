@@ -4,7 +4,9 @@ import BottomSheet from "react-native-simple-bottom-sheet";
 import CardFeedback from "../../../components/CardFeedback";
 import { Ionicons } from "@expo/vector-icons";
 
-const Feedback = ({navigation}) => {
+const Feedback = ({navigation,route}) => {
+  const { driverSelected,tripId } = route.params;
+
   return (
     <View style={styles.container}>
       <View style={styles.content}>
@@ -17,7 +19,7 @@ const Feedback = ({navigation}) => {
         </View>
       </View>
       <BottomSheet isOpen>
-        <CardFeedback navigation={navigation}/>
+        <CardFeedback navigation={navigation} driverSelected={driverSelected} tripId={tripId}/>
       </BottomSheet>
     </View>
   );

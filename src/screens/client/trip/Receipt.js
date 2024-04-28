@@ -3,7 +3,9 @@ import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import CardReceipt from "../../../components/CardReceipt";
 
-const Receipt = ({navigation}) => {
+const Receipt = ({navigation,route}) => {
+  const { driverSelected,tripId } = route.params;
+
   return (
     <View style={styles.container}>
       <View style={[styles.topBar, styles.iconContainer]}>
@@ -14,7 +16,7 @@ const Receipt = ({navigation}) => {
           style={{ marginTop: 10 }}
         />
       </View>
-      <CardReceipt navigation={navigation}/>
+      <CardReceipt navigation={navigation} driverSelected={driverSelected} tripId={tripId}/>
     </View>
   );
 };

@@ -1,13 +1,38 @@
-import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Dimensions,
-} from "react-native";
 
-const CardReceiptTrucker = ({ navigation }) => {
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from "react-native";
+import axios from "axios";
+
+const CardReceiptTrucker = ({ navigation, tripId, driverId }) => {
+  const [tripData, setTripData] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`http://192.168.244.231:3000/trip/${tripId}`);
+        setTripData(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchData();
+  }, [tripId]);
+
+  const handleCashIn = async () => {
+    try {
+      const response = await axios.post("http://192.168.244.231:3000/pay", {
+        trip_id: tripId,
+        driver_id: driverId,
+      });
+      // console.log(response.data);
+      // navigation.navigate("FeedbackTrucker");
+      navigation.navigate("Trucker_vision");
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <View>
       <View style={styles.cardReceiptContainer}>
@@ -15,14 +40,12 @@ const CardReceiptTrucker = ({ navigation }) => {
           <Text>✔</Text>
         </View>
         <Text>you are complete in Course</Text>
-        <Card />
+        {tripData && <Card tripData={tripData} />}
       </View>
       <View>
         <TouchableOpacity
           style={[styles.okButton, { width: "100%" }]}
-          onPress={() => {
-            navigation.navigate("FeedbackTrucker");
-          }}
+          onPress={handleCashIn}
         >
           <Text>CASH IN</Text>
         </TouchableOpacity>
@@ -31,20 +54,20 @@ const CardReceiptTrucker = ({ navigation }) => {
   );
 };
 
-const Card = () => {
+const Card = ({ tripData }) => {
   return (
     <View style={[styles.card, { width: Dimensions.get("window").width - 40 }]}>
       <View style={styles.cardRow}>
-        <Text style={styles.name}>travel cost</Text>
-        <Text style={styles.value}>110 DA</Text>
+        <Text style={styles.name}>Total</Text>
+        <Text style={styles.value}>{tripData.fare} DA</Text>
       </View>
       <View style={styles.cardRow}>
         <Text style={styles.name}>costs</Text>
-        <Text style={styles.value}>10 DA</Text>
+        <Text style={styles.value}>/</Text>
       </View>
       <View style={styles.cardRow}>
         <Text style={styles.name}>your gain</Text>
-        <Text style={styles.value}>100 DA</Text>
+        <Text style={styles.value}>/</Text>
       </View>
       <View style={styles.cardRow}>
         <Text style={styles.name}>payment method</Text>
@@ -52,7 +75,7 @@ const Card = () => {
       </View>
       <View style={styles.cardRow}>
         <Text style={styles.name}>type de course</Text>
-        <Text style={styles.value}>rono classic</Text>
+        <Text style={styles.value}>{tripData.carMake}</Text>
       </View>
     </View>
   );

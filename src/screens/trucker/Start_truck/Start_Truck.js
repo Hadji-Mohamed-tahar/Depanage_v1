@@ -1,3 +1,4 @@
+
 import React, {
   useCallback,
   useMemo,
@@ -13,7 +14,7 @@ import {
   TextInput,
   TouchableOpacity,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useRoute, useNavigation } from "@react-navigation/native";
 import MapView, { Marker } from "react-native-maps";
 import * as Location from "expo-location";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
@@ -21,21 +22,32 @@ import {
   MaterialIcons,
   Feather,
   FontAwesome5,
-  FontAwesome6,
   FontAwesome,
   AntDesign,
 } from "@expo/vector-icons";
+import axios from "axios";
 
 const Start_Truck = () => {
-  const StartPoint = useMemo(() => ["54%"], []);
+  const route = useRoute();
   const navigation = useNavigation();
+  const {
+    DriverId,
+    tripId,
+    username,
+    user_id,
+    currentLocation,
+    destinationLocation,
+    totalDistance,
+  } = route.params;
+
+  const StartPoint = useMemo(() => ["54%"], []);
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
   const [Latitude, setLatitude] = useState(null);
   const [Longitude, setLongitude] = useState(null);
   const [getToLocation, setGetToLocation] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
-  const [Time , setTime] = useState(0);
+  const [Time, setTime] = useState(0);
 
   useEffect(() => {
     (async () => {
@@ -72,10 +84,76 @@ const Start_Truck = () => {
   const toggleVisibility = () => {
     setIsVisible(!isVisible);
   };
+
+  const startTrip = async () => {
+    try {
+      const response = await axios.post(
+        "http://192.168.244.231:3000/start_trip",
+        {
+          trip_id: tripId,
+          driver_id: DriverId,
+          location: {
+            name: currentLocation.city_name,
+            latitude: currentLocation.latitude,
+            longitude: currentLocation.longitude,
+          },
+        }
+      );
+      // console.log("Start_Truck");
+      // console.log(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const endTrip = async () => {
+    try {
+      const response = await axios.post(
+        "http://192.168.244.231:3000/end_trip",
+        {
+          trip_id: tripId,
+          driver_id: DriverId,
+        }
+      );
+      // console.log(response.data);
+      sendEndTripNotification();
+      navigation.navigate("ReceiptTrucker", {
+        trip_id: tripId,
+        driver_id: DriverId,
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const sendEndTripNotification = async () => {
+    const response = await axios.get(
+      `http://192.168.244.231:3000/api/user/${user_id}`
+    );
+    const expoPushToken = response.data;
+
+    const message = {
+      to: expoPushToken,
+      sound: "default",
+      title: "تم انهاء الرحلة",
+      body: "لقد تم انهاء الرحلة بنجاح.",
+      data: {
+        notificationType: "endTrip",
+        tripId:tripId,
+      },
+    };
+
+    try {
+      await axios.post("https://exp.host/--/api/v2/push/send", message);
+      // console.log("تم إرسال الإشعار بنجاح");
+    } catch (error) {
+      console.error("حدث خطأ أثناء إرسال الإشعار:", error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <MapView style={{ flex: 1 }} initialRegion={initialRegion}>
-        {/* Add markers here if needed */}
         {Latitude && Longitude && (
           <Marker
             coordinate={{ latitude: Latitude, longitude: Longitude }}
@@ -89,7 +167,6 @@ const Start_Truck = () => {
         handleIndicatorStyle={{ backgroundColor: "orange" }}
       >
         <BottomSheetView style={styles.contentContainer}>
-          {/* Show Header */}
           <View
             style={styles.lines}
             className="flex-row items-center space-x-60 pb-2"
@@ -100,13 +177,12 @@ const Start_Truck = () => {
             />
             <AntDesign name="questioncircleo" size={24} color="black" />
           </View>
-          {/* Show client information */}
           <View className="flex-row items-center justify-between space-x-4 m-2">
             <View>
               <FontAwesome name="user-circle" size={44} color="gray" />
             </View>
             <View className="flex-column mr-10">
-              <Text className="font-bold">Tahir Hadji Mohammed </Text>
+              <Text className="font-bold">{username}</Text>
               <View className="flex-row space-x-2 m-1 items-center">
                 <FontAwesome name="star" size={18} color="gold" />
                 <Text className="text-yellow-400">4.8</Text>
@@ -116,16 +192,14 @@ const Start_Truck = () => {
               </View>
             </View>
             <View>
-              <Text className="text-blue-400">0.00KM</Text>
+              <Text className="text-blue-400">{totalDistance}KM</Text>
             </View>
           </View>
-          {/* show on map */}
           <View style={{ marginLeft: -230 }}>
             <TouchableOpacity className="flex-row space-x-3 mt-2 items-center">
               <Text className="font-bold">Location</Text>
             </TouchableOpacity>
           </View>
-          {/* location */}
           <View
             style={styles.shadow}
             className="w-80 h-26 bg-white rounded-md flex-column mx-auto mt-1 p-2 items-start justify-between"
@@ -141,13 +215,13 @@ const Start_Truck = () => {
                   !getToLocation ? "text-orange-400" : "text-gray-400"
                 }`}
               >
-                Ben Aknoun , Alger , Alger
+                {currentLocation.city_name}
               </Text>
             </View>
             <View style={styles.liness} className="mb-1"></View>
             <View className="flex-row items-center space-x-2">
-              <FontAwesome6
-                name="location-crosshairs"
+              <FontAwesome
+                name="location-arrow"
                 size={24}
                 color={`${!getToLocation ? "black" : "orange"}`}
               />
@@ -156,11 +230,10 @@ const Start_Truck = () => {
                   !getToLocation ? "" : "text-orange-400"
                 }`}
               >
-                Bab zouar , Alger , Alger
+                {destinationLocation.city_name}
               </Text>
             </View>
           </View>
-          {/* Options for Trucker */}
           <View className="flex-row mx-auto items-center space-x-2 my-4">
             <TouchableOpacity
               style={{ width: 160 }}
@@ -177,15 +250,14 @@ const Start_Truck = () => {
               <Text className="font-bold text-white">Call</Text>
             </TouchableOpacity>
           </View>
-          {/* Start Truck */}
           <View className="w-full mx-14 items-center">
             {isVisible ? (
               <TouchableOpacity
                 className="w-full h-12 rounded-xl bg-orange-400 py-2 px-4"
                 onPress={() => {
-                  // navigation.navigate("SearchingDriver");
                   setGetToLocation(true);
-                  toggleVisibility();
+                  startTrip();
+                  setIsVisible(false); // Change isVisible to false after starting the trip
                 }}
               >
                 <Text className="text-center font-bold text-white text-lg">
@@ -196,7 +268,8 @@ const Start_Truck = () => {
               <TouchableOpacity
                 className="w-full h-12 rounded-xl bg-orange-400 py-2 px-4"
                 onPress={() => {
-                  navigation.navigate("ReceiptTrucker");
+                  // console.log("Arrived at destination");
+                  endTrip(); // اتصال endTrip() عند الضغط على الزر
                 }}
               >
                 <Text className="text-center font-bold text-white text-lg">

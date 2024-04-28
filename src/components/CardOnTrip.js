@@ -2,17 +2,17 @@ import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-const CardOnTrip = () => {
+const CardOnTrip = ({driverSelected}) => {
   return (
     <View style={styles.container}>
       <View style={styles.firstRow}>
         <View style={styles.textContainer}>
           <Text style={styles.textContainer1}>HF784C</Text>
-          <Text style={styles.textContainer2}>BMW 5 Series Sedan</Text>
+          <Text style={styles.textContainer2}>{driverSelected.model}</Text>
         </View>
         <View style={styles.imageContainer}>
           <Image style={styles.image} source={require("../../assets/imageApp/car.png")} />
-          <Text>BMW</Text>
+          <Text>{driverSelected.make}</Text>
         </View>
       </View>
       <View style={styles.secondRow}>

@@ -1,18 +1,37 @@
+
+
 import React, { useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import BottomSheet from "react-native-simple-bottom-sheet";
-// import CardFeedback from "../components/CardFeedback";
 import { Ionicons } from "@expo/vector-icons";
-// import CardArrived from "../../../components/CardArrived";
 import CardOnTrip from "../../../components/CardOnTrip";
+import * as Notifications from 'expo-notifications';
+import { useNavigation } from '@react-navigation/native';
 
-const OnTrip = ({navigation}) => {
+const OnTrip = ({ route }) => {
+  const navigation = useNavigation();
+  const { driverSelected } = route.params;
+  
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.navigate("Arrived")
+      // navigation.navigate("Arrived");
     }, 2000);
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    const subscription = Notifications.addNotificationReceivedListener(notification => {
+      const data = notification.request.content.data;
+      if (data && data.notificationType === "endTrip") {
+        const { tripId } = data;
+        navigation.navigate("Receipt", { driverSelected: driverSelected, tripId: tripId });
+      }
+    });
+  
+    return () => subscription.remove();
+  }, []);
+  
+
   return (
     <View style={styles.container}>
       <View style={styles.content}>
@@ -21,11 +40,11 @@ const OnTrip = ({navigation}) => {
           <Text style={styles.headerText}>En Rout</Text>
         </View>
         <View style={styles.greyBackground}>
-          <Text>Map</Text>
+          {/* No map component */}
         </View>
       </View>
       <BottomSheet isOpen>
-        <CardOnTrip/>
+        <CardOnTrip driverSelected={driverSelected} />
       </BottomSheet>
     </View>
   );

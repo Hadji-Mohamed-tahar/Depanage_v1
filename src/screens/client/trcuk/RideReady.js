@@ -713,6 +713,715 @@
 
 // export default RideReady;
 
+// import * as Notifications from "expo-notifications";
+// import React, { useEffect, useState } from "react";
+// import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+// import { useRoute, useNavigation } from "@react-navigation/native";
+// import { useSelector } from "react-redux";
+// import axios from "axios";
+
+// Notifications.setNotificationHandler({
+//   handleNotification: async () => ({
+//     shouldShowAlert: true,
+//     shouldPlaySound: true,
+//     shouldSetBadge: false,
+//   }),
+// });
+
+// const RideReady = () => {
+//   const route = useRoute();
+//   const navigation = useNavigation();
+//   const driverSelected = route.params?.driverSelected;
+//   const currentLocation = route.params?.currentLocation;
+//   const destinationLocation = route.params?.destinationLocation;
+//   const totalDistance = route.params?.totalDistance;
+
+//   const [isVisible, setIsVisible] = useState(true);
+//   const [counter, setCounter] = useState(10);
+//   const [rideRequested, setRideRequested] = useState(false);
+//   const [tripId, setTripId] = useState(null);
+//   const userId = useSelector((state) => state.user_id);
+//   const username = useSelector((state) => state.username);
+//   function handleNotification(notification) {
+//     const { title, body } = notification.request.content;
+//     // console.log(`Received notification: ${title} - ${body}`);
+//   }
+
+//   Notifications.addNotificationReceivedListener(handleNotification);
+
+//   async function sendPushNotification(expoPushToken) {
+//     const message = {
+//       to: expoPushToken,
+//       sound: "default",
+//       title: "New ride request!",
+//       body: "You have a new ride request.",
+//       data: { someData: "goes here" },
+//     };
+
+//     await Notifications.scheduleNotificationAsync({
+//       content: message,
+//       trigger: null,
+//     });
+//   }
+
+//   //request trip function
+//   const handleRequestRide = async () => {
+//     try {
+//       const response = await axios.post(
+//         "http://192.168.244.231:3000/request_trip",
+//         {
+//           customer_id: userId,
+//           pickup_location: {
+//             latitude: currentLocation.latitude,
+//             longitude: currentLocation.longitude,
+//             city_name: currentLocation.city_name,
+//           },
+//           destination: {
+//             latitude: destinationLocation.latitude,
+//             longitude: destinationLocation.longitude,
+//             city_name: destinationLocation.city_name,
+//           },
+//           driver_id: driverSelected.id,
+//           totalDistance: totalDistance,
+//         }
+//       );
+
+//       if (response.status === 200) {
+//         alert("تم إنشاء الرحلة والطلب بنجاح");
+//         setRideRequested(true);
+//         setIsVisible(false);
+//         console.log(response.data.trip_id);
+//         setTripId(response.data.trip_id);
+//         console.log("in PAGE RideRedy Token:",driverSelected.expo_push_token);
+//         await sendPushNotification(driverSelected.expo_push_token);
+//       } else {
+//         alert("حدث خطأ أثناء إنشاء الرحلة والطلب");
+//       }
+//     } catch (error) {
+//       console.error(error);
+//       alert("حدث خطأ أثناء إنشاء الرحلة والطلب");
+//     }
+//   };
+
+//   useEffect(() => {
+//     if (rideRequested && counter === 0) {
+//       setIsVisible(true);
+//     } else if (rideRequested) {
+//       const timer = setInterval(() => setCounter(counter - 1), 1000);
+//       return () => clearInterval(timer);
+//     }
+//   }, [counter, rideRequested]);
+
+//   // دالة للتحقق من حالة الرحلة
+//   const checkTripStatus = async () => {
+//     try {
+//       const response = await axios.get(
+//         "http://192.168.244.231:3000/check_trip_status",
+//         {
+//           params: {
+//             trip_id: tripId, // معرف الرحلة التي تم إنشاؤها عند طلب الرحلة
+//           },
+//         }
+//       );
+
+//       if (response.status === 200) {
+//         const tripStatus = response.data.trip_status;
+//         // تحقق من حالة الرحلة هنا وقم بتحديث الواجهة الرسومية وفقًا لذلك
+//         alert(`your trip is : ${tripStatus}`);
+//         if (tripStatus === "accepted") {
+//           console.log("تم قبول الرحلة من قبل السائق");
+//           navigation.navigate("OnTrip");
+//         }
+//       } else if (response.status === 400) {
+//         console.error("trip_id is required");
+//       } else if (response.status === 404) {
+//         console.error("Trip not found");
+//       } else {
+//         console.error("An error occurred while checking the trip status");
+//       }
+//     } catch (error) {
+//       console.log("tripId==>", tripId);
+//       console.error("this errore in ==>", error);
+//     }
+//   };
+
+//   // بدء التحقق من حالة الرحلة بمجرد طلب الرحلة
+//   useEffect(() => {
+//     if (rideRequested && tripId) {
+//       const intervalId = setInterval(checkTripStatus, 10000); // كل 10 ثواني
+//       return () => clearInterval(intervalId); // تنظيف عند فك التحميل
+//     }
+//   }, [rideRequested, tripId]);
+
+//   return (
+//     <View style={styles.container}>
+//       <View style={styles.card}>
+//         <Text style={styles.text1}>Slot 3</Text>
+//         {rideRequested && (
+//           <Text style={styles.text1}>Time remaining: {counter} seconds</Text>
+//         )}
+//         <Image
+//           source={require("../../../../assets/imageApp/car.png")}
+//           style={styles.icon}
+//         />
+//         <Text style={styles.text2}>Your ride is ready!</Text>
+//         {isVisible && (
+//           <View style={styles.buttons}>
+//             {!rideRequested && (
+//               <TouchableOpacity
+//                 style={styles.button}
+//                 onPress={handleRequestRide}
+//               >
+//                 <Text style={styles.buttonText}>Request Ride</Text>
+//               </TouchableOpacity>
+//             )}
+//             {rideRequested && (
+//               <TouchableOpacity
+//                 style={styles.button}
+//                 onPress={() => {
+//                   navigation.goBack();
+//                 }}
+//               >
+//                 <Text style={styles.buttonText}>Choose another driver</Text>
+//               </TouchableOpacity>
+//             )}
+//             {rideRequested && (
+//               <TouchableOpacity
+//                 style={styles.button}
+//                 onPress={async () => {
+//                   setIsVisible(false);
+//                   setCounter(10);
+//                   await sendPushNotification(driverSelected.expo_push_token);
+//                 }}
+//               >
+//                 <Text style={styles.buttonText}>Resend request</Text>
+//               </TouchableOpacity>
+//             )}
+//           </View>
+//         )}
+//       </View>
+//     </View>
+//   );
+// };
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     backgroundColor: "rgba(0, 0, 0, 0.5)",
+//     alignItems: "center",
+//     justifyContent: "center",
+//   },
+//   card: {
+//     backgroundColor: "yellow",
+//     padding: 20,
+//     borderRadius: 10,
+//     alignItems: "center",
+//   },
+//   text1: {
+//     fontSize: 24,
+//     fontWeight: "bold",
+//   },
+//   icon: {
+//     width: 75,
+//     height: 75,
+//     marginTop: 10,
+//     marginBottom: 10,
+//   },
+//   text2: {
+//     fontSize: 20,
+//     margin: 5,
+//   },
+//   buttons: {
+//     flexDirection: "row",
+//     justifyContent: "space-evenly",
+//     marginTop: 10,
+//     gap: 10,
+//   },
+//   button: {
+//     backgroundColor: "white",
+//     padding: 10,
+//     borderRadius: 5,
+//   },
+//   buttonText: {
+//     fontSize: 16,
+//   },
+// });
+
+// export default RideReady;
+
+
+// import * as Notifications from "expo-notifications";
+// import React, { useEffect, useState } from "react";
+// import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+// import { useRoute, useNavigation } from "@react-navigation/native";
+// import { useSelector } from "react-redux";
+// import axios from "axios";
+
+// Notifications.setNotificationHandler({
+//   handleNotification: async () => ({
+//     shouldShowAlert: true,
+//     shouldPlaySound: true,
+//     shouldSetBadge: false,
+//   }),
+// });
+
+// const RideReady = () => {
+//   const route = useRoute();
+//   const navigation = useNavigation();
+//   const driverSelected = route.params?.driverSelected;
+//   const currentLocation = route.params?.currentLocation;
+//   const destinationLocation = route.params?.destinationLocation;
+//   const totalDistance = route.params?.totalDistance;
+
+//   const [isVisible, setIsVisible] = useState(true);
+//   const [counter, setCounter] = useState(10);
+//   const [rideRequested, setRideRequested] = useState(false);
+//   const [tripId, setTripId] = useState(null);
+//   const userId = useSelector((state) => state.user_id);
+//   const username = useSelector((state) => state.username);
+
+//   const sendPushNotification = async (expoPushToken) => {
+//     console.log("testing........",expoPushToken);
+//     const message = {
+//       to: expoPushToken,
+//       sound: "default",
+//       title: "New ride request!",
+//       body: "You have a new ride request.",
+//       data: { someData: "goes here" },
+//     };
+
+//     await Notifications.scheduleNotificationAsync({
+//       content: message,
+//       trigger: null,
+//     });
+//   };
+
+//   //request trip function
+//   const handleRequestRide = async () => {
+//     try {
+//       const response = await axios.post(
+//         "http://192.168.244.231:3000/request_trip",
+//         {
+//           customer_id: userId,
+//           pickup_location: {
+//             latitude: currentLocation.latitude,
+//             longitude: currentLocation.longitude,
+//             city_name: currentLocation.city_name,
+//           },
+//           destination: {
+//             latitude: destinationLocation.latitude,
+//             longitude: destinationLocation.longitude,
+//             city_name: destinationLocation.city_name,
+//           },
+//           driver_id: driverSelected.id,
+//           totalDistance: totalDistance,
+//         }
+//       );
+
+//       if (response.status === 200) {
+//         alert("تم إنشاء الرحلة والطلب بنجاح");
+//         setRideRequested(true);
+//         setIsVisible(false);
+//         console.log(response.data.trip_id);
+//         setTripId(response.data.trip_id);
+//         console.log("in PAGE RideRedy Token:", driverSelected.expo_push_token);
+//         await sendPushNotification(driverSelected.expo_push_token); // إرسال الإشعار إلى التوكن المحدد
+//       } else {
+//         alert("حدث خطأ أثناء إنشاء الرحلة والطلب");
+//       }
+//     } catch (error) {
+//       console.error(error);
+//       alert("حدث خطأ أثناء إنشاء الرحلة والطلب");
+//     }
+//   };
+
+//   useEffect(() => {
+//     if (rideRequested && counter === 0) {
+//       setIsVisible(true);
+//     } else if (rideRequested) {
+//       const timer = setInterval(() => setCounter(counter - 1), 1000);
+//       return () => clearInterval(timer);
+//     }
+//   }, [counter, rideRequested]);
+
+//   // دالة للتحقق من حالة الرحلة
+//   const checkTripStatus = async () => {
+//     try {
+//       const response = await axios.get(
+//         "http://192.168.244.231:3000/check_trip_status",
+//         {
+//           params: {
+//             trip_id: tripId, // معرف الرحلة التي تم إنشاؤها عند طلب الرحلة
+//           },
+//         }
+//       );
+
+//       if (response.status === 200) {
+//         const tripStatus = response.data.trip_status;
+//         // تحقق من حالة الرحلة هنا وقم بتحديث الواجهة الرسومية وفقًا لذلك
+//         alert(`your trip is : ${tripStatus}`);
+//         if (tripStatus === "accepted") {
+//           console.log("تم قبول الرحلة من قبل السائق");
+//           navigation.navigate("OnTrip");
+//         }
+//       } else if (response.status === 400) {
+//         console.error("trip_id is required");
+//       } else if (response.status === 404) {
+//         console.error("Trip not found");
+//       } else {
+//         console.error("An error occurred while checking the trip status");
+//       }
+//     } catch (error) {
+//       console.log("tripId==>", tripId);
+//       console.error("this errore in ==>", error);
+//     }
+//   };
+
+//   // بدء التحقق من حالة الرحلة بمجرد طلب الرحلة
+//   useEffect(() => {
+//     if (rideRequested && tripId) {
+//       const intervalId = setInterval(checkTripStatus, 10000); // كل 10 ثواني
+//       return () => clearInterval(intervalId); // تنظيف عند فك التحميل
+//     }
+//   }, [rideRequested, tripId]);
+
+//   return (
+//     <View style={styles.container}>
+//       <View style={styles.card}>
+//         <Text style={styles.text1}>Slot 3</Text>
+//         {rideRequested && (
+//           <Text style={styles.text1}>Time remaining: {counter} seconds</Text>
+//         )}
+//         <Image
+//           source={require("../../../../assets/imageApp/car.png")}
+//           style={styles.icon}
+//         />
+//         <Text style={styles.text2}>Your ride is ready!</Text>
+//         {isVisible && (
+//           <View style={styles.buttons}>
+//             {!rideRequested && (
+//               <TouchableOpacity
+//                 style={styles.button}
+//                 onPress={handleRequestRide}
+//               >
+//                 <Text style={styles.buttonText}>Request Ride</Text>
+//               </TouchableOpacity>
+//             )}
+//             {rideRequested && (
+//               <TouchableOpacity
+//                 style={styles.button}
+//                 onPress={() => {
+//                   navigation.goBack();
+//                 }}
+//               >
+//                 <Text style={styles.buttonText}>Choose another driver</Text>
+//               </TouchableOpacity>
+//             )}
+//             {rideRequested && (
+//               <TouchableOpacity
+//                 style={styles.button}
+//                 onPress={async () => {
+//                   setIsVisible(false);
+//                   setCounter(10);
+            
+//                 }}
+//               >
+//                 <Text style={styles.buttonText}>Resend request</Text>
+//               </TouchableOpacity>
+//             )}
+//           </View>
+//         )}
+//       </View>
+//     </View>
+//   );
+// };
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     backgroundColor: "rgba(0, 0, 0, 0.5)",
+//     alignItems: "center",
+//     justifyContent: "center",
+//   },
+//   card: {
+//     backgroundColor: "yellow",
+//     padding: 20,
+//     borderRadius: 10,
+//     alignItems: "center",
+//   },
+//   text1: {
+//     fontSize: 24,
+//     fontWeight: "bold",
+//   },
+//   icon: {
+//     width: 75,
+//     height: 75,
+//     marginTop: 10,
+//     marginBottom: 10,
+//   },
+//   text2: {
+//     fontSize: 20,
+//     margin: 5,
+//   },
+//   buttons: {
+//     flexDirection: "row",
+//     justifyContent: "space-evenly",
+//     marginTop: 10,
+//     gap: 10,
+//   },
+//   button: {
+//     backgroundColor: "white",
+//     padding: 10,
+//     borderRadius: 5,
+//   },
+//   buttonText: {
+//     fontSize: 16,
+//   },
+// });
+
+// export default RideReady;
+
+// import * as Notifications from "expo-notifications";
+// import React, { useEffect, useState } from "react";
+// import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+// import { useRoute, useNavigation } from "@react-navigation/native";
+// import { useSelector } from "react-redux";
+// import axios from "axios";
+
+// Notifications.setNotificationHandler({
+//   handleNotification: async () => ({
+//     shouldShowAlert: true,
+//     shouldPlaySound: true,
+//     shouldSetBadge: false,
+//   }),
+// });
+
+// const RideReady = () => {
+//   const route = useRoute();
+//   const navigation = useNavigation();
+//   const driverSelected = route.params?.driverSelected;
+//   const currentLocation = route.params?.currentLocation;
+//   const destinationLocation = route.params?.destinationLocation;
+//   const totalDistance = route.params?.totalDistance;
+
+//   const [isVisible, setIsVisible] = useState(true);
+//   const [counter, setCounter] = useState(10);
+//   const [rideRequested, setRideRequested] = useState(false);
+//   const [tripId, setTripId] = useState(null);
+//   const userId = useSelector((state) => state.user_id);
+//   const username = useSelector((state) => state.username);
+
+//   // Function to send push notification to the driver
+//   const sendPushNotification = async (expoPushToken,trip_id) => {
+//     const message = {
+//       to: expoPushToken,
+//       sound: "default",
+//       title: "New ride request!",
+//       body: "You have a new ride request",
+//       data: {
+//         trip_id: trip_id,
+//         user_id: userId,
+//         username:username,
+//         currentLocation:currentLocation,
+//         destinationLocation:destinationLocation,
+//         totalDistance:totalDistance,
+//         cost:driverSelected.cost,
+//       }
+//     };
+
+//     try {
+//       const response = await axios.post('https://exp.host/--/api/v2/push/send', message);
+//       console.log(response.data);
+//     } catch (error) {
+//       console.error(error);
+//     }
+//   };
+
+//   // Request trip function
+//   const handleRequestRide = async () => {
+//     try {
+//       const response = await axios.post(
+//         "http://192.168.244.231:3000/request_trip",
+//         {
+//           customer_id: userId,
+//           pickup_location: {
+//             latitude: currentLocation.latitude,
+//             longitude: currentLocation.longitude,
+//             city_name: currentLocation.city_name,
+//           },
+//           destination: {
+//             latitude: destinationLocation.latitude,
+//             longitude: destinationLocation.longitude,
+//             city_name: destinationLocation.city_name,
+//           },
+//           driver_id: driverSelected.id,
+//           totalDistance: totalDistance,
+//         }
+//       );
+
+//       if (response.status === 200) {
+//         alert("تم إنشاء الرحلة والطلب بنجاح");
+//         setRideRequested(true);
+//         setIsVisible(false);
+//         console.log(response.data.trip_id);
+//         setTripId(response.data.trip_id);
+//         console.log("in PAGE RideRedy Token:", driverSelected.expo_push_token);
+//         await sendPushNotification(driverSelected.expo_push_token,response.data.trip_id); // Send notification to the driver
+//       } else {
+//         alert("حدث خطأ أثناء إنشاء الرحلة والطلب");
+//       }
+//     } catch (error) {
+//       console.error(error);
+//       alert("حدث خطأ أثناء إنشاء الرحلة والطلب");
+//     }
+//   };
+
+//   useEffect(() => {
+//     if (rideRequested && counter === 0) {
+//       setIsVisible(true);
+//     } else if (rideRequested) {
+//       const timer = setInterval(() => setCounter(counter - 1), 1000);
+//       return () => clearInterval(timer);
+//     }
+//   }, [counter, rideRequested]);
+
+//   // Function to check trip status
+//   const checkTripStatus = async () => {
+//     try {
+//       const response = await axios.get(
+//         "http://192.168.244.231:3000/check_trip_status",
+//         {
+//           params: {
+//             trip_id: tripId,
+//           },
+//         }
+//       );
+
+//       if (response.status === 200) {
+//         const tripStatus = response.data.trip_status;
+//         // alert(`your trip is : ${tripStatus}`);
+//         // if (tripStatus === "accepted") {
+//         //   console.log("تم قبول الرحلة من قبل السائق");
+//         //   navigation.navigate("OnTrip");
+//         // }
+//       } else if (response.status === 400) {
+//         console.error("trip_id is required");
+//       } else if (response.status === 404) {
+//         console.error("Trip not found");
+//       } else {
+//         console.error("An error occurred while checking the trip status");
+//       }
+//     } catch (error) {
+//       console.log("tripId==>", tripId);
+//       console.error("this errore in ==>", error);
+//     }
+//   };
+
+//   // Start checking trip status once ride is requested
+//   useEffect(() => {
+//     if (rideRequested && tripId) {
+//       const intervalId = setInterval(checkTripStatus, 10000); // Every 10 seconds
+//       return () => clearInterval(intervalId); // Cleanup on unmount
+//     }
+//   }, [rideRequested, tripId]);
+
+//   return (
+//     <View style={styles.container}>
+//       <View style={styles.card}>
+//         <Text style={styles.text1}>Slot 3</Text>
+//         {rideRequested && (
+//           <Text style={styles.text1}>Time remaining: {counter} seconds</Text>
+//         )}
+//         <Image
+//           source={require("../../../../assets/imageApp/car.png")}
+//           style={styles.icon}
+//         />
+//         <Text style={styles.text2}>Your ride is ready!</Text>
+//         {isVisible && (
+//           <View style={styles.buttons}>
+//             {!rideRequested && (
+//               <TouchableOpacity
+//                 style={styles.button}
+//                 onPress={handleRequestRide}
+//               >
+//                 <Text style={styles.buttonText}>Request Ride</Text>
+//               </TouchableOpacity>
+//             )}
+//             {rideRequested && (
+//               <TouchableOpacity
+//                 style={styles.button}
+//                 onPress={() => {
+//                   navigation.goBack();
+//                 }}
+//               >
+//                 <Text style={styles.buttonText}>Choose another driver</Text>
+//               </TouchableOpacity>
+//             )}
+//             {rideRequested && (
+//               <TouchableOpacity
+//                 style={styles.button}
+//                 onPress={async () => {
+//                   setIsVisible(false);
+//                   setCounter(10);
+//                   await sendPushNotification(driverSelected.expo_push_token);
+//                 }}
+//               >
+//                 <Text style={styles.buttonText}>Resend request</Text>
+//               </TouchableOpacity>
+//             )}
+//           </View>
+//         )}
+//       </View>
+//     </View>
+//   );
+// };
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     backgroundColor: "rgba(0, 0, 0, 0.5)",
+//     alignItems: "center",
+//     justifyContent: "center",
+//   },
+//   card: {
+//     backgroundColor: "yellow",
+//     padding: 20,
+//     borderRadius: 10,
+//     alignItems: "center",
+//   },
+//   text1: {
+//     fontSize: 24,
+//     fontWeight: "bold",
+//   },
+//   icon: {
+//     width: 75,
+//     height: 75,
+//     marginTop: 10,
+//     marginBottom: 10,
+//   },
+//   text2: {
+//     fontSize: 20,
+//     margin: 5,
+//   },
+//   buttons: {
+//     flexDirection: "row",
+//     justifyContent: "space-evenly",
+//     marginTop: 10,
+//     gap: 10,
+//   },
+//   button: {
+//     backgroundColor: "white",
+//     padding: 10,
+//     borderRadius: 5,
+//   },
+//   buttonText: {
+//     fontSize: 16,
+//   },
+// });
+
+// export default RideReady;
+
+
 import * as Notifications from "expo-notifications";
 import React, { useEffect, useState } from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
@@ -742,29 +1451,52 @@ const RideReady = () => {
   const [tripId, setTripId] = useState(null);
   const userId = useSelector((state) => state.user_id);
   const username = useSelector((state) => state.username);
-  function handleNotification(notification) {
-    const { title, body } = notification.request.content;
-    // console.log(`Received notification: ${title} - ${body}`);
-  }
 
-  Notifications.addNotificationReceivedListener(handleNotification);
+  // Function to handle notification
+  const handleNotification = (notification) => {
+    if (notification.request.content.data.notificationType === "driverArrived") {
+      navigation.navigate("Arrived",{
+        driverSelected:driverSelected
+      });
+    }
+  };
 
-  async function sendPushNotification(expoPushToken) {
+  useEffect(() => {
+    const subscription = Notifications.addNotificationReceivedListener(handleNotification);
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
+  // Function to send push notification to the driver
+  const sendPushNotification = async (expoPushToken,trip_id) => {
     const message = {
       to: expoPushToken,
       sound: "default",
       title: "New ride request!",
-      body: "You have a new ride request.",
-      data: { someData: "goes here" },
+      body: "You have a new ride request",
+      data: {
+        notificationType:"ride_request",
+        trip_id: trip_id,
+        user_id: userId,
+        username:username,
+        currentLocation:currentLocation,
+        destinationLocation:destinationLocation,
+        totalDistance:totalDistance,
+        cost:driverSelected.cost,
+      }
     };
 
-    await Notifications.scheduleNotificationAsync({
-      content: message,
-      trigger: null,
-    });
-  }
+    try {
+      const response = await axios.post('https://exp.host/--/api/v2/push/send', message);
+      
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-  //request trip function
+  // Request trip function
   const handleRequestRide = async () => {
     try {
       const response = await axios.post(
@@ -790,10 +1522,8 @@ const RideReady = () => {
         alert("تم إنشاء الرحلة والطلب بنجاح");
         setRideRequested(true);
         setIsVisible(false);
-        console.log(response.data.trip_id);
         setTripId(response.data.trip_id);
-        console.log("in PAGE RideRedy Token:",driverSelected.expo_push_token);
-        await sendPushNotification(driverSelected.expo_push_token);
+        await sendPushNotification(driverSelected.expo_push_token,response.data.trip_id); // Send notification to the driver
       } else {
         alert("حدث خطأ أثناء إنشاء الرحلة والطلب");
       }
@@ -812,26 +1542,20 @@ const RideReady = () => {
     }
   }, [counter, rideRequested]);
 
-  // دالة للتحقق من حالة الرحلة
+  // Function to check trip status
   const checkTripStatus = async () => {
     try {
       const response = await axios.get(
         "http://192.168.244.231:3000/check_trip_status",
         {
           params: {
-            trip_id: tripId, // معرف الرحلة التي تم إنشاؤها عند طلب الرحلة
+            trip_id: tripId,
           },
         }
       );
 
       if (response.status === 200) {
         const tripStatus = response.data.trip_status;
-        // تحقق من حالة الرحلة هنا وقم بتحديث الواجهة الرسومية وفقًا لذلك
-        alert(`your trip is : ${tripStatus}`);
-        if (tripStatus === "accepted") {
-          console.log("تم قبول الرحلة من قبل السائق");
-          navigation.navigate("OnTrip");
-        }
       } else if (response.status === 400) {
         console.error("trip_id is required");
       } else if (response.status === 404) {
@@ -840,16 +1564,15 @@ const RideReady = () => {
         console.error("An error occurred while checking the trip status");
       }
     } catch (error) {
-      console.log("tripId==>", tripId);
-      console.error("this errore in ==>", error);
+      console.error( error);
     }
   };
 
-  // بدء التحقق من حالة الرحلة بمجرد طلب الرحلة
+  // Start checking trip status once ride is requested
   useEffect(() => {
     if (rideRequested && tripId) {
-      const intervalId = setInterval(checkTripStatus, 10000); // كل 10 ثواني
-      return () => clearInterval(intervalId); // تنظيف عند فك التحميل
+      const intervalId = setInterval(checkTripStatus, 10000); // Every 10 seconds
+      return () => clearInterval(intervalId); 
     }
   }, [rideRequested, tripId]);
 
@@ -948,3 +1671,4 @@ const styles = StyleSheet.create({
 });
 
 export default RideReady;
+
